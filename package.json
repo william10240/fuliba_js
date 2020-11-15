@@ -1,0 +1,18 @@
+{
+  "name": "fuliimg_js",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "request": "^2.88.2",
+    "cheerio": "^1.0.0-rc.3",
+    "log4js": "^6.3.0",
+    "glob": "^7.1.6",
+    "imghdr": "^0.1.6"
+  }
+}
