@@ -18,12 +18,16 @@ IMG_PATH = path.join(APP_PATH, "../fuliimages1")
 logger.info("----------当前运行路径: " + APP_PATH + " ----------")
 logger.info("----------图片存储路径: " + IMG_PATH + " ----------")
 
+
+const url = 'https://fuliba2020.net/category/flhz'
+
 main()
 
 // 主函数
 function main() {
-    for (let index = 1; index < 8; index++) {
-        get_list(index)
+    get_list(url)
+    for (let index = 2; index < 8; index++) {
+        get_list(url + "/page/" + index)
     }
     logger.info("启动成功,程序每小时运行一次")
     setTimeout(() => {
@@ -32,13 +36,10 @@ function main() {
 }
 
 // 获取 列表页
-function get_list(page_index) {
-    let url = 'https://fuliba2020.net/category/flhz'
-    if (page_index !== 1) {
-        url = url + "/page/" + page_index
-    }
-    _request(url, (html) => {
-        logger.info("列表页请求成功:" + url)
+function get_list(list_url) {
+
+    logger.info("列表页请求开始:" + list_url)
+    _request(list_url, (html) => {
         const $ = cheerio.load(html);
         $("h2 a").map((index, el) => {
             // 准备 参数
@@ -52,14 +53,14 @@ function get_list(page_index) {
             get_page(page_url, content_title)
         })
     }, () => {
-        logger.info("列表页请求失败:" + url)
+        logger.info("列表页请求失败:" + list_url)
     })
 }
 
 // 获取 内容页
 function get_page(page_url, page_title) {
+    logger.info("----内容页请求开始:" + page_url)
     _request(page_url, (html) => {
-        logger.debug("----内容页请求成功:" + page_url)
         const $ = cheerio.load(html);
         $(".article-paging a").map((index, el) => {
             // 准备 参数
@@ -74,8 +75,8 @@ function get_page(page_url, page_title) {
 
 // 获取 内容 分页
 function get_content(content_url, content_title, content_index) {
+    logger.info("--------详情页请求开始:" + content_index + ":" + content_title)
     _request(content_url, (html) => {
-        logger.debug("--------详情页请求成功:" + content_index + ":" + content_title)
         const $ = cheerio.load(html);
         let tag = content_title.match('(.*?)福利汇总第(.*?)期')
         $(".article-content img").map((index, el) => {
@@ -102,7 +103,6 @@ function get_content(content_url, content_title, content_index) {
 // 保存图片
 function save_img(img_src, img_path) {
     logger.debug("--------开始下载图片:" + img_src)
-
     // 检测文件已近下载过
     if (fs.existsSync(img_path)) {
         logger.debug("--------图片已下载过:" + img_src)
@@ -136,7 +136,7 @@ function save_img(img_src, img_path) {
                 let exts = imghdr.what(res)
             } catch (e) {
                 logger.error("--------图片解析失败:" + img_src)
-                logger.error("--------      地址:" + img_path)
+                logger.error("              地址:" + img_path)
                 return
             }
             img_path = img_path + '.' + exts[0]
@@ -144,16 +144,17 @@ function save_img(img_src, img_path) {
 
         fs.writeFile(img_path, res, err => {
             if (!err) {
-                logger.debug('--------图片保存成功:' + img_src)
+                logger.info('--------图片保存成功:' + img_src)
+                logger.info("              地址:" + img_path)
             } else {
                 logger.error("--------图片保存失败:" + img_src)
-                logger.error("--------      地址:" + img_path)
+                logger.error("              地址:" + img_path)
             }
         })
 
     }, () => {
         logger.error("--------图片请求失败:" + img_src)
-        logger.error("--------      地址:" + img_path)
+        logger.error("              地址:" + img_path)
     })
 
 
