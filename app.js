@@ -37,9 +37,8 @@ function main() {
 
 // 获取 列表页
 function get_list(list_url) {
-
-    logger.info("列表页请求开始:" + list_url)
     _request(list_url, (html) => {
+        logger.info("列表页请求成功:" + list_url)
         const $ = cheerio.load(html);
         $("h2 a").map((index, el) => {
             // 准备 参数
@@ -59,8 +58,8 @@ function get_list(list_url) {
 
 // 获取 内容页
 function get_page(page_url, page_title) {
-    logger.info("----内容页请求开始:" + page_url)
     _request(page_url, (html) => {
+        logger.info("--内容页请求成功:" + page_url)
         const $ = cheerio.load(html);
         $(".article-paging a").map((index, el) => {
             // 准备 参数
@@ -69,14 +68,14 @@ function get_page(page_url, page_title) {
             get_content(content_url, page_title, $(el).text())
         })
     }, () => {
-        logger.info("----内容页请求失败:" + page_url)
+        logger.error("--内容页请求失败:" + page_url)
     })
 }
 
 // 获取 内容 分页
 function get_content(content_url, content_title, content_index) {
-    logger.info("--------详情页请求开始:" + content_index + ":" + content_title)
     _request(content_url, (html) => {
+        logger.info("----详情页请求成功:" + content_index + ":" + content_title)
         const $ = cheerio.load(html);
         let tag = content_title.match('(.*?)福利汇总第(.*?)期')
         $(".article-content img").map((index, el) => {
@@ -96,13 +95,13 @@ function get_content(content_url, content_title, content_index) {
             }
         })
     }, () => {
-        logger.info("--------详情页请求失败:" + content_url)
+        logger.error("----详情页请求失败:" + content_url)
     })
 }
 
 // 保存图片
 function save_img(img_src, img_path) {
-    logger.debug("--------开始下载图片:" + img_src)
+    logger.debug("------开始下载图片:" + img_src)
     // 检测文件已近下载过
     if (fs.existsSync(img_path)) {
         logger.debug("--------图片已下载过:" + img_src)
@@ -165,7 +164,7 @@ function _request(url, callback, errError) {
     request(url, {
             encoding: null,
             headers: {/*设置请求头*/
-                "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.121 Safari/537.36"
+                "user-agent": "Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.116 Safari/537.36"
             }
         },
         function (error, response, body) {

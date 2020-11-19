@@ -1,0 +1,1 @@
+cls && node app.js
