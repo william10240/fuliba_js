@@ -26,13 +26,16 @@ function main() {
     function i_next(index) {
         if (index < 8) {
             get_list(index, () => {
-                i_next(index+1)
+                i_next(index + 1)
             })
-        }else{
+        } else {
             logger.info("请求完成,一小时后重试")
-            setTimeout(() => {i_next(1)}, 60 * 60 * 1000);
+            setTimeout(() => {
+                i_next(1)
+            }, 60 * 60 * 1000);
         }
     }
+    
     i_next(1)
 }
 
@@ -40,8 +43,7 @@ function main() {
 function get_list(list_index, _resolve) {
     let list_url = url + (list_index > 1 ? ("/page/" + list_index) : "")
     logger.info("列表页请求成功:" + list_url)
-    _request(list_url,
-        (html) => {
+    _request(list_url, (html) => {
             const $ = cheerio.load(html);
             let els = $("h2 a")
             
@@ -56,7 +58,7 @@ function get_list(list_index, _resolve) {
                     logger.debug("page_url:" + page_url)
                     // 开始调用 get_page
                     get_page(page_url, content_title, () => {
-                        i_next(index+1)
+                        i_next(index + 1)
                     })
                 } else {
                     _resolve()
@@ -65,8 +67,7 @@ function get_list(list_index, _resolve) {
             
             i_next(0)
             
-        },
-        () => {
+        }, () => {
             logger.info("列表页请求失败:" + list_url)
             _resolve()
         })
@@ -75,71 +76,67 @@ function get_list(list_index, _resolve) {
 // 获取 内容页
 function get_page(page_url, page_title, _resolve) {
     logger.info("--内容页请求成功:" + page_url)
-    _request(page_url,
-        (html) => {
-            const $ = cheerio.load(html);
-            let els = $(".article-paging a")
-            
-            function i_next(index) {
-                if (index < els.length) {
-                    let el = els[index]
-                    // 准备 参数
-                    let content_url = el.attribs.href
-                    // 开始调用 get_page
-                    get_content(content_url, page_title, $(el).text(), () => {
-                        i_next(index+1)
-                    })
-                } else {
-                    _resolve()
-                }
+    _request(page_url, (html) => {
+        const $ = cheerio.load(html);
+        let els = $(".article-paging a")
+        
+        function i_next(index) {
+            if (index < els.length) {
+                let el = els[index]
+                // 准备 参数
+                let content_url = el.attribs.href
+                // 开始调用 get_page
+                get_content(content_url, page_title, $(el).text(), () => {
+                    i_next(index + 1)
+                })
+            } else {
+                _resolve()
             }
-            
-            i_next(0)
-        },
-        () => {
-            logger.error("--内容页请求失败:" + page_url)
-            _resolve()
-        })
+        }
+        
+        i_next(0)
+    }, () => {
+        logger.error("--内容页请求失败:" + page_url)
+        _resolve()
+    })
 }
 
 // 获取 内容 分页
 function get_content(content_url, content_title, content_index, _resolve) {
     logger.info("----详情页请求成功:" + content_index + ":" + content_title)
-    _request(content_url,
-        (html) => {
-            const $ = cheerio.load(html);
-            let tag = content_title.match('(.*?)福利汇总第(.*?)期')
-            let els = $(".article-content img")
-    
-            function i_next(index) {
-                if (index < els.length) {
-                    let el = els[index]
-                    // 准备 参数
-                    let img_src = el.attribs.src
-                    if (img_src) {
-                        let img_path = path.join(IMG_PATH, tag[1], tag[2], content_index, path.basename(img_src))
-                        // 测试查看参数
-                        logger.debug("img_src:" + img_src)
-                        logger.debug("img_path:" + img_path)
-                        // 开始调用 save_img
-                        save_img(img_src, img_path,() => {
-                            i_next(index+1)
-                        })
-                    } else {
-                        logger.error("src为空:" + content_index + "-" + index + ":" + content_title)
-                        i_next(index+1)
-                    }
+    _request(content_url, (html) => {
+        const $ = cheerio.load(html);
+        let tag = content_title.match('(.*?)福利汇总第(.*?)期')
+        let els = $(".article-content img")
+        
+        function i_next(index) {
+            if (index < els.length) {
+                let el = els[index]
+                // 准备 参数
+                let img_src = el.attribs.src
+                if (img_src) {
+                    let img_path = path.join(IMG_PATH, tag[1], tag[2], content_index, path.basename(img_src))
+                    // 测试查看参数
+                    logger.debug("img_src:" + img_src)
+                    logger.debug("img_path:" + img_path)
+                    // 开始调用 save_img
+                    save_img(img_src, img_path, () => {
+                        i_next(index + 1)
+                    })
                 } else {
-                    _resolve()
+                    logger.error("src为空:" + content_index + "-" + index + ":" + content_title)
+                    i_next(index + 1)
                 }
+            } else {
+                _resolve()
             }
-    
-            i_next(0)
-        },
-        () => {
-            logger.error("----详情页请求失败:" + content_url)
-            _resolve()
-        })
+        }
+        
+        i_next(0)
+    }, () => {
+        logger.error("----详情页请求失败:" + content_url)
+        _resolve()
+    })
 }
 
 // 保存图片
@@ -174,8 +171,7 @@ function save_img(img_src, img_path, _resolve) {
     }
     
     //开始请求图片
-    _request(img_src,
-        (res) => {
+    _request(img_src, (res) => {
             // 如果文件名没有后缀
             if (!path.extname(img_src)) {
                 try {
@@ -201,8 +197,7 @@ function save_img(img_src, img_path, _resolve) {
                 }
             })
             
-        },
-        () => {
+        }, () => {
             logger.error("--------图片请求失败:" + img_src)
             logger.error("              地址:" + img_path)
             _resolve()
@@ -232,8 +227,9 @@ function _request(url, callback, errError) {
     }).then(function () {
         // always executed
     });
-
+    
 }
+
 function _mkdirsSync(dirname) {
     if (fs.existsSync(dirname)) {
         return true;
