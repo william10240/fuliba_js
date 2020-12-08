@@ -232,8 +232,8 @@ function _request(url, callback, errError) {
     }).then(function () {
         // always executed
     });
-}
 
+}
 function _mkdirsSync(dirname) {
     if (fs.existsSync(dirname)) {
         return true;
