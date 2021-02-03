@@ -12,7 +12,7 @@ logger.level = "info";
 // 定义当前目录
 APP_PATH = __dirname
 // 定义 图片目录
-IMG_PATH = path.join(APP_PATH, "../fuliimages1")
+IMG_PATH = path.join(APP_PATH, "../fuliimages2")
 
 logger.info("----------当前运行路径: " + APP_PATH + " ----------")
 logger.info("----------图片存储路径: " + IMG_PATH + " ----------")
