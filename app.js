@@ -11,7 +11,7 @@ log4js.configure({
         out: {
             type: 'stdout', layout: {
                 type: 'pattern',
-                pattern: '%[%d{MM-dd hh:mm:ss}]% %m'
+                pattern: '%[%d{MM-dd hh:mm:ss}]% %0.4p %m'
             }
         }
     },
