@@ -1,3 +1,4 @@
+# 此版本暂停更新,请使用golang版本
 # 福利吧(https://fuliba2020.net) 福利汇总图片下载器(Node版)
 
 [Golang 版本](https://github.com/williamyan1024/fuliimg_go), [Python 按本](https://github.com/williamyan1024/fuliimg_py)
